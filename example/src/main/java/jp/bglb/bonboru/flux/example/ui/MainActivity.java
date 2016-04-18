@@ -7,11 +7,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import jp.bglb.bonboru.flux.Dispatcher;
 import jp.bglb.bonboru.flux.component.Component;
-import jp.bglb.bonboru.flux.example.reducer.MainReducer;
 import jp.bglb.bonboru.flux.example.R;
 import jp.bglb.bonboru.flux.example.action.ActionTypes;
 import jp.bglb.bonboru.flux.example.action.MainAction;
 import jp.bglb.bonboru.flux.example.dto.MainData;
+import jp.bglb.bonboru.flux.example.reducer.MainReducer;
 import jp.bglb.bonboru.flux.store.Store;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
   MainAction action = new MainAction();
 
-  Dispatcher<MainData, ActionTypes> dispatcher = new Dispatcher<>();
+  Dispatcher<MainData, ActionTypes> dispatcher;
 
   TextView message;
 
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     message = (TextView) findViewById(R.id.message);
     button = (Button) findViewById(R.id.button);
+    dispatcher = new Dispatcher<>(mainReducer, store);
     store.addListener(component);
     component.subscribe()
         .subscribeOn(Schedulers.newThread())
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         });
     button.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        dispatcher.dispatch(action, mainReducer, store);
+        dispatcher.dispatch(action);
       }
     });
   }

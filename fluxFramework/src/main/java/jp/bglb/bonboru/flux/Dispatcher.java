@@ -15,8 +15,15 @@ import rx.schedulers.Schedulers;
  * Actionで取得したデータをstoreにdispatchする
  */
 public class Dispatcher<T, E extends ActionType> {
+  final Reducer<T, E> reducer;
+  final Store<T> store;
 
-  public void dispatch(final Action<T, E> action, final Reducer<T, E> reducer, final Store<T> store) {
+  public Dispatcher(final Reducer<T, E> reducer, final Store<T> store) {
+    this.reducer = reducer;
+    this.store = store;
+  }
+
+  public void dispatch(final Action<T, E> action) {
     Observable<ActionData<T, E>> observable =
         Observable.create(new Observable.OnSubscribe<ActionData<T, E>>() {
           @Override public void call(Subscriber<? super ActionData<T, E>> subscriber) {
@@ -29,7 +36,7 @@ public class Dispatcher<T, E extends ActionType> {
           }
         });
 
-    observable.observeOn(Schedulers.io()).subscribe(new Action1<ActionData<T, E>>() {
+    observable.subscribeOn(Schedulers.io()).subscribe(new Action1<ActionData<T, E>>() {
       @Override public void call(ActionData<T, E> actionData) {
         T data = reducer.received(actionData.data, actionData.type);
         store.setData(data);
