@@ -10,6 +10,7 @@ import jp.bglb.bonboru.flux.component.Component;
 import jp.bglb.bonboru.flux.example.R;
 import jp.bglb.bonboru.flux.example.action.ActionTypes;
 import jp.bglb.bonboru.flux.example.action.MainAction;
+import jp.bglb.bonboru.flux.example.action.data.MainActionResult;
 import jp.bglb.bonboru.flux.example.dto.MainData;
 import jp.bglb.bonboru.flux.example.reducer.MainReducer;
 import jp.bglb.bonboru.flux.store.Store;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
   MainAction action = new MainAction();
 
-  Dispatcher<MainData, ActionTypes> dispatcher;
+  Dispatcher<MainData, ActionTypes, MainActionResult> dispatcher;
 
   TextView message;
 
