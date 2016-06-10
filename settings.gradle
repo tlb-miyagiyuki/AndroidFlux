@@ -1,2 +1,2 @@
-include ':fluxFramework'
+include ':fluxFramework', ':fluxProcessor'
 include ':example'

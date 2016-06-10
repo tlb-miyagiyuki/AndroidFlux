@@ -14,7 +14,10 @@ public class MainReducer extends MyReducer<MainData, MainActionResult> {
   public MainData received(MainData state, ActionData<MainActionResult, ActionTypes> action) {
     switch (action.type) {
       case UPDATE_TEXT:
-        return new MainData(action.data.text);
+        return new MainData(action.data.message, state.text);
+
+      case UPDATE_MESSAGE:
+        return new MainData(action.data.message, action.data.text);
 
       default:
         return state;
