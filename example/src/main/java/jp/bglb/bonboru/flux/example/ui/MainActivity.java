@@ -11,10 +11,10 @@ import jp.bglb.bonboru.flux.Dispatcher;
 import jp.bglb.bonboru.flux.example.R;
 import jp.bglb.bonboru.flux.example.action.ActionTypes;
 import jp.bglb.bonboru.flux.example.action.MainAction;
+import jp.bglb.bonboru.flux.example.action.MainAction2;
 import jp.bglb.bonboru.flux.example.dto.MainData;
-import jp.bglb.bonboru.flux.example.dto.MainDataState;
+import jp.bglb.bonboru.flux.example.dto.MainDataStore;
 import jp.bglb.bonboru.flux.example.reducer.MainReducer;
-import jp.bglb.bonboru.flux.store.Store;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -25,19 +25,20 @@ import rx.subscriptions.CompositeSubscription;
  */
 public class MainActivity extends AppCompatActivity {
 
-  MainDataState state = new MainDataState();
-
-  Store<MainData> store = new Store<>();
+  MainDataStore store = new MainDataStore();
 
   MainReducer mainReducer = new MainReducer();
 
   MainAction action = new MainAction();
+
+  MainAction2 action2 = new MainAction2();
 
   Dispatcher<MainData, ActionTypes> dispatcher;
 
   TextView message;
 
   Button button;
+  Button button2;
 
   CompositeSubscription subscription;
 
@@ -46,29 +47,27 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     message = (TextView) findViewById(R.id.message);
     button = (Button) findViewById(R.id.button);
+    button2 = (Button) findViewById(R.id.button2);
     dispatcher = new Dispatcher<>(mainReducer, store);
-    store.addListener(state);
     button.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         dispatcher.dispatch(action);
+      }
+    });
+    button2.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        dispatcher.dispatch(action2);
       }
     });
   }
 
   @Override protected void onResume() {
     super.onResume();
-    subscription = new CompositeSubscription(state.message.subscribeOn(Schedulers.newThread())
+    subscription = new CompositeSubscription(store.message.subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Action1<String>() {
           @Override public void call(String str) {
             Log.d("Debug", "changed message");
-            message.setText(str);
-          }
-        }), state.text.subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Action1<String>() {
-          @Override public void call(String str) {
-            Log.d("Debug", "changed text");
             message.setText(str);
           }
         }));
@@ -77,10 +76,5 @@ public class MainActivity extends AppCompatActivity {
   @Override protected void onPause() {
     super.onPause();
     subscription.unsubscribe();
-  }
-
-  @Override protected void onDestroy() {
-    super.onDestroy();
-    store.removeListener(state);
   }
 }

@@ -13,5 +13,4 @@ import rx.subjects.BehaviorSubject;
 
   @ObservableField(String.class) public String message;
 
-  @ObservableField(String.class) public String text;
 }

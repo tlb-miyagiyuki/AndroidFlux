@@ -13,10 +13,10 @@ public class MainReducer extends MyReducer<MainData> {
   @Override public MainData received(MainData state, ActionData<MainData, ActionTypes> action) {
     switch (action.type) {
       case UPDATE_TEXT:
-        return new MainDataBuilder().setText(action.data.text).build();
+        return new MainDataBuilder().setMessage(action.data.message).build();
 
       case UPDATE_MESSAGE:
-        return new MainDataBuilder().setText(action.data.message).build();
+        return new MainDataBuilder().setMessage(action.data.message).build();
 
       default:
         return state;
