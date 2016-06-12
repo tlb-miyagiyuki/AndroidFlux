@@ -61,6 +61,9 @@ public class FluxProcessor extends AbstractProcessor {
             TypeSpec.Builder classBuilder = TypeSpec.classBuilder(element.getSimpleName().toString() + "State")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
+            TypeSpec.Builder actionDataBuilder = TypeSpec.classBuilder(element.getSimpleName().toString() + "ActionResult")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
             MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC);
 
