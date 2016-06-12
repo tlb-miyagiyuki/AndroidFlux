@@ -26,6 +26,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'asm-license.txt'
+        exclude 'NOTICE'
+        exclude 'LICENSE.txt'
+        exclude 'LICENSE'
+    }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {

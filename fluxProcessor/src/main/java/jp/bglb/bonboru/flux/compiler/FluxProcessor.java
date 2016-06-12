@@ -58,35 +58,12 @@ public class FluxProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         List<Element> dataClasses = new ArrayList<>(roundEnv.getElementsAnnotatedWith(ObservableClass.class));
         for (Element element : dataClasses) {
-            TypeSpec.Builder classBuilder = TypeSpec.classBuilder(element.getSimpleName().toString() + "State")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-
-            TypeSpec.Builder actionDataBuilder = TypeSpec.classBuilder(element.getSimpleName().toString() + "ActionResult")
+            final String stateClassName = element.getSimpleName().toString() + "State";
+            TypeSpec.Builder classBuilder = TypeSpec.classBuilder(stateClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC);
-
-            List<String> fields = new ArrayList<>();
-            for (Element member : element.getEnclosedElements()) {
-                if (member.getAnnotation(ObservableField.class) != null) {
-                    final String fieldName = member.getSimpleName().toString();
-                    ClassName behavior = ClassName.get(BehaviorSubject.class);
-                    TypeMirror typeMirror = getType(member);
-                    ClassName type = ClassName.bestGuess(typeMirror.toString());
-                    TypeName behaviorOfType = ParameterizedTypeName.get(behavior, type);
-                    try {
-                        FieldSpec fieldSpec = FieldSpec.builder(behaviorOfType, fieldName)
-                                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
-                                .build();
-                        classBuilder.addField(fieldSpec);
-                        constructorBuilder.addStatement("this.$N = $T.create()", fieldName, BehaviorSubject.class);
-                        fields.add(fieldName);
-                    } catch (MirroredTypeException t) {
-                    }
-                }
-            }
-            classBuilder.addMethod(constructorBuilder.build());
 
             TypeMirror dataType = getDataType(element);
             ClassName dataName = ClassName.bestGuess(dataType.toString());
@@ -94,22 +71,68 @@ public class FluxProcessor extends AbstractProcessor {
             classBuilder.addSuperinterface(ParameterizedTypeName.get(stateListener, dataName));
             classBuilder.addField(FieldSpec.builder(dataName, "state", Modifier.PRIVATE).build());
 
+            // DataクラスのBuilderクラス
+            final String builderName = element.getSimpleName().toString() + "Builder";
+            TypeSpec.Builder dataBuilder = TypeSpec.classBuilder(builderName)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addField(FieldSpec.builder(dataName, "data", Modifier.PRIVATE).build())
+                    .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
+                            .addStatement("this.$N = new $T()", "data", dataName)
+                            .build())
+                    .addMethod(MethodSpec.methodBuilder("build")
+                            .addModifiers(Modifier.PUBLIC)
+                            .addStatement("return this.$N", "data")
+                            .returns(dataName)
+                            .build());
+
             // 自分の持ってるデータと渡されるデータの差分を検出して反映するメソッド
             MethodSpec.Builder onChangeBuilder = MethodSpec.methodBuilder("onChange")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(dataName, "data");
-            for (String field : fields) {
-                onChangeBuilder.beginControlFlow("if (this.$N.$N.equals($N.$N))", "state", field, "data", field)
-                        .addStatement("this.$N.onNext($N.$N)", field, "data", field)
-                        .endControlFlow();
+
+            for (Element member : element.getEnclosedElements()) {
+                if (member.getAnnotation(ObservableField.class) != null) {
+                    ClassName behavior = ClassName.get(BehaviorSubject.class);
+                    TypeMirror typeMirror = getType(member);
+                    ClassName type = ClassName.bestGuess(typeMirror.toString());
+                    TypeName behaviorOfType = ParameterizedTypeName.get(behavior, type);
+                    try {
+                        final String field = member.getSimpleName().toString();
+                        FieldSpec fieldSpec = FieldSpec.builder(behaviorOfType, field)
+                                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                                .build();
+                        classBuilder.addField(fieldSpec);
+                        constructorBuilder.addStatement("this.$N = $T.create()", field, BehaviorSubject.class);
+
+                        // 各filedの違いを確認して反映するようにする
+                        onChangeBuilder.beginControlFlow("if (this.$N.$N.equals($N.$N))", "state", field, "data", field)
+                                .addStatement("this.$N.onNext($N.$N)", field, "data", field)
+                                .endControlFlow();
+
+                        // Builderのsetter
+                        MethodSpec setter = MethodSpec.methodBuilder("set" + field.substring(0, 1).toUpperCase() + field.substring(1))
+                                .addModifiers(Modifier.PUBLIC)
+                                .addParameter(type, field)
+                                .addStatement("this.$N.$N = $N", "data", field, field)
+                                .addStatement("return this")
+                                .returns(ClassName.get(dataName.packageName(), builderName))
+                                .build();
+                        dataBuilder.addMethod(setter);
+                    } catch (MirroredTypeException t) {
+                    }
+                }
             }
+            classBuilder.addMethod(constructorBuilder.build());
             onChangeBuilder.addStatement("this.$N = $N", "state", "data");
             classBuilder.addMethod(onChangeBuilder.build());
 
             try {
-                System.out.println("package:" + element.getClass().getPackage().getName());
                 JavaFile.builder(dataName.packageName(), classBuilder.build())
+                        .build()
+                        .writeTo(filer);
+
+                JavaFile.builder(dataName.packageName(), dataBuilder.build())
                         .build()
                         .writeTo(filer);
             } catch (IOException e) {
@@ -122,6 +145,7 @@ public class FluxProcessor extends AbstractProcessor {
     /**
      * FIXME: 例外に頼らない方法かつ、汎用的にしたい
      * ObservableFiledのAnnotationに設定されたclass情報を取得する
+     *
      * @param element annotated filed
      * @return typeMirror
      */
@@ -139,6 +163,7 @@ public class FluxProcessor extends AbstractProcessor {
     /**
      * FIXME: 例外に頼らない方法かつ、汎用的にしたい
      * ObservableClassのAnnotationに設定されたclass情報を取得する
+     *
      * @param element annotated class
      * @return typeMirror
      */

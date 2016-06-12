@@ -1,5 +1,7 @@
 package jp.bglb.bonboru.flux.example.dto;
 
+import android.os.Build;
+
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
 import rx.subjects.BehaviorSubject;
@@ -11,10 +13,13 @@ import rx.subjects.BehaviorSubject;
 public class MainData {
 
   @ObservableField(String.class)
-  public final String message;
+  public String message;
 
   @ObservableField(String.class)
-  public final String text;
+  public String text;
+
+  public MainData() {
+  }
 
   public MainData(String message) {
     this.message = message;
@@ -24,5 +29,15 @@ public class MainData {
   public MainData(String message, String text) {
     this.message = message;
     this.text = text;
+  }
+
+  static class Builder {
+
+    MainData data = new MainData();
+
+    public Builder setMessage(String message) {
+      data.message = message;
+      return this;
+    }
   }
 }
