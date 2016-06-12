@@ -6,5 +6,5 @@ import jp.bglb.bonboru.flux.reducer.Reducer;
 /**
  * Created by tmasuda on 2016/04/24.
  */
-public abstract class MyReducer<T, R> extends Reducer<T, ActionTypes, R> {
+public abstract class MyReducer<T> extends Reducer<T, ActionTypes> {
 }
