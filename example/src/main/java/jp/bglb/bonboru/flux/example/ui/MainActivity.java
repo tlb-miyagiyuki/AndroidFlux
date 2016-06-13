@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import jp.bglb.bonboru.flux.Dispatcher;
+import jp.bglb.bonboru.flux.example.MyDispatcher;
 import jp.bglb.bonboru.flux.example.R;
 import jp.bglb.bonboru.flux.example.action.ActionTypes;
 import jp.bglb.bonboru.flux.example.action.MainAction;
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     message = (TextView) findViewById(R.id.message);
     button = (Button) findViewById(R.id.button);
     button2 = (Button) findViewById(R.id.button2);
-    dispatcher = new Dispatcher<>(mainReducer, store);
+    dispatcher = new MyDispatcher<>(mainReducer, store);
     button.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         dispatcher.dispatch(action);

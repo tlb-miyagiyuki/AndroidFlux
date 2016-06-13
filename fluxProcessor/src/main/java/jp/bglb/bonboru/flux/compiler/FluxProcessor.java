@@ -96,31 +96,34 @@ import rx.subjects.BehaviorSubject;
           TypeName behaviorOfType = ParameterizedTypeName.get(behavior, type);
           try {
             final String field = member.getSimpleName().toString();
+            final String setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+            final String getter = "get" + field.substring(0, 1).toUpperCase() + field.substring(1) + "()";
             FieldSpec fieldSpec = FieldSpec.builder(behaviorOfType, field)
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .build();
             classBuilder.addField(fieldSpec);
-            constructorBuilder.addStatement("this.$N = $T.create(this.$N.$N)", field,
-                BehaviorSubject.class, "data", field);
+            constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
+                BehaviorSubject.class, "data");
 
+            System.out.println("if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))");
             // 各filedの違いを確認して反映するようにする
             onChangeBuilder.beginControlFlow(
-                "if ($N.$N != null && (this.$N.$N == null || !this.$N.$N.equals($N.$N)))", "data",
-                field, "data", field, "data", field, "data", field)
-                .addStatement("this.$N.$N = $N.$N", "data", field, "data", field)
-                .addStatement("this.$N.onNext($N.$N)", field, "data", field)
+                "if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))", "data",
+                "data", "data", "data")
+                .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
+                .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
                 .endControlFlow();
 
             // Builderのsetter
-            MethodSpec setter = MethodSpec.methodBuilder(
+            MethodSpec setterBuilder = MethodSpec.methodBuilder(
                 "set" + field.substring(0, 1).toUpperCase() + field.substring(1))
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(type, field)
-                .addStatement("this.$N.$N = $N", "data", field, field)
+                .addStatement("this.$N." + setter + "($N)", "data", field)
                 .addStatement("return this")
                 .returns(ClassName.get(dataName.packageName(), builderName))
                 .build();
-            dataBuilder.addMethod(setter);
+            dataBuilder.addMethod(setterBuilder);
           } catch (MirroredTypeException t) {
           }
         }
