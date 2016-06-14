@@ -8,7 +8,4 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 public @interface ObservableField {
-    Class<?> value();
-
-    Class<?>[] types() default {};
 }

@@ -10,7 +10,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +26,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
-import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
@@ -65,8 +63,7 @@ import static java.lang.Class.forName;
       MethodSpec.Builder constructorBuilder =
           MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
-      TypeMirror dataType = getDataType(element);
-      ClassName dataName = ClassName.bestGuess(dataType.toString());
+      ClassName dataName = ClassName.bestGuess(element.asType().toString());
       ClassName superClass = ClassName.get(Store.class);
       classBuilder.superclass(ParameterizedTypeName.get(superClass, dataName));
       constructorBuilder.addStatement("this.$N = new $T()", "data", dataName);
@@ -95,16 +92,9 @@ import static java.lang.Class.forName;
       for (Element member : element.getEnclosedElements()) {
         if (member.getAnnotation(ObservableField.class) != null) {
           ClassName behavior = ClassName.get(BehaviorSubject.class);
-          TypeMirror typeMirror = getType(member);
-          ClassName type = ClassName.bestGuess(typeMirror.toString());
-          TypeVariable<? extends Class<?>>[] typeParameters = getTypeParameters(type);
-          TypeName behaviorOfType;
-          if (typeParameters == null || typeParameters.length == 0) {
-            behaviorOfType = ParameterizedTypeName.get(behavior, type);
-          } else {
-            behaviorOfType = ParameterizedTypeName.get(behavior,
-                ParameterizedTypeName.get(type, getTypeParameters(member)));
-          }
+          TypeMirror typeMirror = member.asType();
+          TypeName behaviorOfType =
+              ParameterizedTypeName.get(behavior, ParameterizedTypeName.get(typeMirror));
 
           try {
             final String field = member.getSimpleName().toString();
@@ -130,12 +120,7 @@ import static java.lang.Class.forName;
             MethodSpec.Builder setterBuilder = MethodSpec.methodBuilder(
                 "set" + field.substring(0, 1).toUpperCase() + field.substring(1))
                 .addModifiers(Modifier.PUBLIC);
-            if (typeParameters == null || typeParameters.length == 0) {
-              setterBuilder.addParameter(type, field);
-            } else {
-              setterBuilder.addParameter(ParameterizedTypeName.get(type, getTypeParameters(member)),
-                  field);
-            }
+            setterBuilder.addParameter(ParameterizedTypeName.get(typeMirror), field);
             setterBuilder.addStatement("this.$N." + setter + "($N)", "data", field)
                 .addStatement("return this")
                 .returns(ClassName.get(dataName.packageName(), builderName));
@@ -148,7 +133,6 @@ import static java.lang.Class.forName;
 
       try {
         JavaFile.builder(dataName.packageName(), classBuilder.build()).build().writeTo(filer);
-
         JavaFile.builder(dataName.packageName(), dataBuilder.build()).build().writeTo(filer);
       } catch (IOException e) {
         e.printStackTrace();
@@ -157,61 +141,4 @@ import static java.lang.Class.forName;
     return true;
   }
 
-  /**
-   * FIXME: 例外に頼らない方法かつ、汎用的にしたい
-   * ObservableFiledのAnnotationに設定されたclass情報を取得する
-   *
-   * @param element annotated filed
-   * @return typeMirror
-   */
-  private TypeMirror getType(Element element) {
-    TypeMirror typeMirror = null;
-    try {
-      element.getAnnotation(ObservableField.class).value();
-      throw new RuntimeException();
-    } catch (Exception exception) {
-      typeMirror = ((MirroredTypeException) exception).getTypeMirror();
-    }
-    return typeMirror;
-  }
-
-  /**
-   * FIXME: 例外に頼らない方法かつ、汎用的にしたい
-   * ObservableClassのAnnotationに設定されたclass情報を取得する
-   *
-   * @param element annotated class
-   * @return typeMirror
-   */
-  private TypeMirror getDataType(Element element) {
-    TypeMirror typeMirror = null;
-    try {
-      element.getAnnotation(ObservableClass.class).value();
-      throw new RuntimeException();
-    } catch (Exception exception) {
-      typeMirror = ((MirroredTypeException) exception).getTypeMirror();
-    }
-    return typeMirror;
-  }
-
-  private TypeVariable<? extends Class<?>>[] getTypeParameters(ClassName className) {
-    try {
-      return forName(className.toString()).getTypeParameters();
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
-
-  private ClassName[] getTypeParameters(Element element) {
-    List<ClassName> typeMirrors = new ArrayList<>();
-    try {
-      element.getAnnotation(ObservableField.class).types();
-      throw new RuntimeException();
-    } catch (Exception exception) {
-      for (TypeMirror type : ((MirroredTypesException) exception).getTypeMirrors()) {
-        typeMirrors.add(ClassName.bestGuess(type.toString()));
-      }
-    }
-    return typeMirrors.toArray(new ClassName[typeMirrors.size()]);
-  }
 }
