@@ -102,13 +102,15 @@ import static java.lang.Class.forName;
           if (typeParameters == null || typeParameters.length == 0) {
             behaviorOfType = ParameterizedTypeName.get(behavior, type);
           } else {
-            behaviorOfType = ParameterizedTypeName.get(behavior, ParameterizedTypeName.get(type, getTypeParameters(member)));
+            behaviorOfType = ParameterizedTypeName.get(behavior,
+                ParameterizedTypeName.get(type, getTypeParameters(member)));
           }
 
           try {
             final String field = member.getSimpleName().toString();
             final String setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
-            final String getter = "get" + field.substring(0, 1).toUpperCase() + field.substring(1) + "()";
+            final String getter =
+                "get" + field.substring(0, 1).toUpperCase() + field.substring(1) + "()";
             FieldSpec fieldSpec = FieldSpec.builder(behaviorOfType, field)
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .build();
@@ -116,25 +118,28 @@ import static java.lang.Class.forName;
             constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
                 BehaviorSubject.class, "data");
 
-            System.out.println("if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))");
             // 各fieldの違いを確認して反映するようにする
-            onChangeBuilder.beginControlFlow(
-                "if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))", "data",
-                "data", "data", "data")
+            onChangeBuilder.beginControlFlow(String.format(
+                "if ($N.%s != null" + "&& (this.$N.%s == null || !this.$N.%s.equals($N.%s)))",
+                getter, getter, getter, getter), "data", "data", "data", "data")
                 .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
                 .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
                 .endControlFlow();
 
             // Builderのsetter
-            MethodSpec setterBuilder = MethodSpec.methodBuilder(
+            MethodSpec.Builder setterBuilder = MethodSpec.methodBuilder(
                 "set" + field.substring(0, 1).toUpperCase() + field.substring(1))
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(type, field)
-                .addStatement("this.$N." + setter + "($N)", "data", field)
+                .addModifiers(Modifier.PUBLIC);
+            if (typeParameters == null || typeParameters.length == 0) {
+              setterBuilder.addParameter(type, field);
+            } else {
+              setterBuilder.addParameter(ParameterizedTypeName.get(type, getTypeParameters(member)),
+                  field);
+            }
+            setterBuilder.addStatement("this.$N." + setter + "($N)", "data", field)
                 .addStatement("return this")
-                .returns(ClassName.get(dataName.packageName(), builderName))
-                .build();
-            dataBuilder.addMethod(setterBuilder);
+                .returns(ClassName.get(dataName.packageName(), builderName));
+            dataBuilder.addMethod(setterBuilder.build());
           } catch (MirroredTypeException t) {
           }
         }
@@ -203,7 +208,7 @@ import static java.lang.Class.forName;
       element.getAnnotation(ObservableField.class).types();
       throw new RuntimeException();
     } catch (Exception exception) {
-      for(TypeMirror type : ((MirroredTypesException) exception).getTypeMirrors()) {
+      for (TypeMirror type : ((MirroredTypesException) exception).getTypeMirrors()) {
         typeMirrors.add(ClassName.bestGuess(type.toString()));
       }
     }
