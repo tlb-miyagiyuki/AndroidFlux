@@ -10,6 +10,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,12 +27,15 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
 import jp.bglb.bonboru.flux.store.Store;
 import rx.subjects.BehaviorSubject;
+
+import static java.lang.Class.forName;
 
 /**
  * AnnotationされているDataクラスからViewの制御を行うためのStateクラスを作る
@@ -93,7 +97,14 @@ import rx.subjects.BehaviorSubject;
           ClassName behavior = ClassName.get(BehaviorSubject.class);
           TypeMirror typeMirror = getType(member);
           ClassName type = ClassName.bestGuess(typeMirror.toString());
-          TypeName behaviorOfType = ParameterizedTypeName.get(behavior, type);
+          TypeVariable<? extends Class<?>>[] typeParameters = getTypeParameters(type);
+          TypeName behaviorOfType;
+          if (typeParameters == null || typeParameters.length == 0) {
+            behaviorOfType = ParameterizedTypeName.get(behavior, type);
+          } else {
+            behaviorOfType = ParameterizedTypeName.get(behavior, ParameterizedTypeName.get(type, getTypeParameters(member)));
+          }
+
           try {
             final String field = member.getSimpleName().toString();
             final String setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
@@ -106,7 +117,7 @@ import rx.subjects.BehaviorSubject;
                 BehaviorSubject.class, "data");
 
             System.out.println("if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))");
-            // 各filedの違いを確認して反映するようにする
+            // 各fieldの違いを確認して反映するようにする
             onChangeBuilder.beginControlFlow(
                 "if ($N." + getter + " != null && (this.$N." + getter + " == null || !this.$N." + getter + ".equals($N." + getter + ")))", "data",
                 "data", "data", "data")
@@ -175,5 +186,27 @@ import rx.subjects.BehaviorSubject;
       typeMirror = ((MirroredTypeException) exception).getTypeMirror();
     }
     return typeMirror;
+  }
+
+  private TypeVariable<? extends Class<?>>[] getTypeParameters(ClassName className) {
+    try {
+      return forName(className.toString()).getTypeParameters();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  private ClassName[] getTypeParameters(Element element) {
+    List<ClassName> typeMirrors = new ArrayList<>();
+    try {
+      element.getAnnotation(ObservableField.class).types();
+      throw new RuntimeException();
+    } catch (Exception exception) {
+      for(TypeMirror type : ((MirroredTypesException) exception).getTypeMirrors()) {
+        typeMirrors.add(ClassName.bestGuess(type.toString()));
+      }
+    }
+    return typeMirrors.toArray(new ClassName[typeMirrors.size()]);
   }
 }
