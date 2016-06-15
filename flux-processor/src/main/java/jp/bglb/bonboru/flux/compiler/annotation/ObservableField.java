@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ObservableField {
   boolean isNullable() default false;
+  boolean hasDefaultValue() default false;
 }

@@ -9,7 +9,7 @@ import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
  */
 @ObservableClass public class MainData {
 
-  @ObservableField public String message;
+  @ObservableField(hasDefaultValue = true) public String message;
 
   @ObservableField(isNullable = true) public String error;
 

@@ -90,7 +90,8 @@ import static java.lang.Class.forName;
           .addParameter(dataName, "data");
 
       for (Element member : element.getEnclosedElements()) {
-        if (member.getAnnotation(ObservableField.class) != null) {
+        ObservableField annotation = member.getAnnotation(ObservableField.class);
+        if (annotation != null) {
           ClassName behavior = ClassName.get(BehaviorSubject.class);
           TypeMirror typeMirror = member.asType();
           TypeName behaviorOfType =
@@ -105,11 +106,16 @@ import static java.lang.Class.forName;
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .build();
             classBuilder.addField(fieldSpec);
-            constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
-                BehaviorSubject.class, "data");
+            if (annotation.hasDefaultValue()) {
+              constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
+                  BehaviorSubject.class, "data");
+            } else {
+              constructorBuilder.addStatement("this.$N = $T.create()", field,
+                  BehaviorSubject.class);
+            }
 
             // 各fieldの違いを確認して反映するようにする
-            boolean isNullable = member.getAnnotation(ObservableField.class).isNullable();
+            boolean isNullable = annotation.isNullable();
             StringBuilder controlFlow = new StringBuilder("if (");
             Object[] args;
             if (isNullable) {
