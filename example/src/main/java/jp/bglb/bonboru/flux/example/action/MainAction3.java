@@ -8,10 +8,9 @@ import jp.bglb.bonboru.flux.example.dto.MainDataBuilder;
 /**
  * Created by tmasuda on 2016/04/15.
  */
-public class MainAction implements Action<MainData, ActionTypes> {
+public class MainAction3 implements Action<MainData, ActionTypes> {
 
   @Override public ActionData<MainData, ActionTypes> execute() {
-    return new ActionData<>(new MainDataBuilder().setMessage("message").setError(null).build(),
-        ActionTypes.UPDATE_MESSAGE);
+    return new ActionData<>(new MainDataBuilder().setError("error").build(), ActionTypes.UPDATE_ERROR);
   }
 }

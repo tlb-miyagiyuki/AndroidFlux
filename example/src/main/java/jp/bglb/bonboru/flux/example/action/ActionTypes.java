@@ -7,5 +7,6 @@ import jp.bglb.bonboru.flux.action.ActionType;
  */
 public enum ActionTypes implements ActionType {
   UPDATE_TEXT,
-  UPDATE_MESSAGE
+  UPDATE_MESSAGE,
+  UPDATE_ERROR
 }

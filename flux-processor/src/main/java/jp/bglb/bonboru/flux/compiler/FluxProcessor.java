@@ -109,9 +109,22 @@ import static java.lang.Class.forName;
                 BehaviorSubject.class, "data");
 
             // 各fieldの違いを確認して反映するようにする
-            onChangeBuilder.beginControlFlow(String.format(
-                "if ($N.%s != null" + "&& (this.$N.%s == null || !this.$N.%s.equals($N.%s)))",
-                getter, getter, getter, getter), "data", "data", "data", "data")
+            boolean isNullable = member.getAnnotation(ObservableField.class).isNullable();
+            StringBuilder controlFlow = new StringBuilder("if (");
+            Object[] args;
+            if (isNullable) {
+              args = new Object[3];
+            } else {
+              args = new Object[4];
+              controlFlow.append(String.format("$N.%s != null && ", getter));
+            }
+            for (int i = 0; i < args.length; i++) {
+              args[i] = "data";
+            }
+            controlFlow.append(
+                String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter, getter,
+                    getter)).append(")");
+            onChangeBuilder.beginControlFlow(controlFlow.toString(), args)
                 .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
                 .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
                 .endControlFlow();
@@ -140,5 +153,4 @@ import static java.lang.Class.forName;
     }
     return true;
   }
-
 }

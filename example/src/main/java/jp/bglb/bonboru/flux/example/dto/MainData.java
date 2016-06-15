@@ -11,6 +11,8 @@ import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
 
   @ObservableField public String message;
 
+  @ObservableField(isNullable = true) public String error;
+
   @ObservableField public List<String> messages;
 
   public String getMessage() {
@@ -27,6 +29,14 @@ import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
 
   public void setMessages(List<String> messages) {
     this.messages = messages;
+  }
+
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
   }
 }
 
