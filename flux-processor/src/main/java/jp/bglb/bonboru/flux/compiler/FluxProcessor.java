@@ -30,6 +30,7 @@ import javax.lang.model.type.TypeMirror;
 
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
+import jp.bglb.bonboru.flux.compiler.type.CheckType;
 import jp.bglb.bonboru.flux.store.Store;
 import rx.subjects.BehaviorSubject;
 
@@ -115,21 +116,39 @@ import static java.lang.Class.forName;
             }
 
             // 各fieldの違いを確認して反映するようにする
-            boolean isNullable = annotation.isNullable();
-            StringBuilder controlFlow = new StringBuilder("if (");
+            CheckType checkType = annotation.checkType();
+            StringBuilder controlFlow = new StringBuilder();
             Object[] args;
-            if (isNullable) {
-              args = new Object[3];
-            } else {
-              args = new Object[4];
-              controlFlow.append(String.format("$N.%s != null && ", getter));
+            switch (checkType) {
+              case NULLABLE:
+                args = new Object[3];
+                controlFlow.append("if (")
+                    .append(
+                        String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter,
+                            getter, getter))
+                    .append(")");
+                break;
+
+              case PASS:
+                args = new Object[0];
+                controlFlow.append("if (1 == 1)");
+                break;
+
+              case STRICT:
+              default:
+                args = new Object[4];
+                controlFlow.append("if (")
+                    .append(String.format("$N.%s != null", getter))
+                    .append(" && ")
+                    .append(
+                        String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter,
+                            getter, getter))
+                    .append(")");
+                break;
             }
             for (int i = 0; i < args.length; i++) {
               args[i] = "data";
             }
-            controlFlow.append(
-                String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter, getter,
-                    getter)).append(")");
             onChangeBuilder.beginControlFlow(controlFlow.toString(), args)
                 .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
                 .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
