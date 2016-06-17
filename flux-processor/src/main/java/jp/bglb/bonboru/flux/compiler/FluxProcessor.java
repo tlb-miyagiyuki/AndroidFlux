@@ -30,6 +30,7 @@ import javax.lang.model.type.TypeMirror;
 
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
+import jp.bglb.bonboru.flux.compiler.type.CheckType;
 import jp.bglb.bonboru.flux.store.Store;
 import rx.subjects.BehaviorSubject;
 
@@ -90,7 +91,8 @@ import static java.lang.Class.forName;
           .addParameter(dataName, "data");
 
       for (Element member : element.getEnclosedElements()) {
-        if (member.getAnnotation(ObservableField.class) != null) {
+        ObservableField annotation = member.getAnnotation(ObservableField.class);
+        if (annotation != null) {
           ClassName behavior = ClassName.get(BehaviorSubject.class);
           TypeMirror typeMirror = member.asType();
           TypeName behaviorOfType =
@@ -105,13 +107,49 @@ import static java.lang.Class.forName;
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .build();
             classBuilder.addField(fieldSpec);
-            constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
-                BehaviorSubject.class, "data");
+            if (annotation.hasDefaultValue()) {
+              constructorBuilder.addStatement("this.$N = $T.create(this.$N." + getter + ")", field,
+                  BehaviorSubject.class, "data");
+            } else {
+              constructorBuilder.addStatement("this.$N = $T.create()", field,
+                  BehaviorSubject.class);
+            }
 
             // 各fieldの違いを確認して反映するようにする
-            onChangeBuilder.beginControlFlow(String.format(
-                "if ($N.%s != null" + "&& (this.$N.%s == null || !this.$N.%s.equals($N.%s)))",
-                getter, getter, getter, getter), "data", "data", "data", "data")
+            CheckType checkType = annotation.checkType();
+            StringBuilder controlFlow = new StringBuilder();
+            Object[] args;
+            switch (checkType) {
+              case NULLABLE:
+                args = new Object[3];
+                controlFlow.append("if (")
+                    .append(
+                        String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter,
+                            getter, getter))
+                    .append(")");
+                break;
+
+              case PASS:
+                args = new Object[0];
+                controlFlow.append("if (1 == 1)");
+                break;
+
+              case STRICT:
+              default:
+                args = new Object[4];
+                controlFlow.append("if (")
+                    .append(String.format("$N.%s != null", getter))
+                    .append(" && ")
+                    .append(
+                        String.format("(this.$N.%s == null || !this.$N.%s.equals($N.%s))", getter,
+                            getter, getter))
+                    .append(")");
+                break;
+            }
+            for (int i = 0; i < args.length; i++) {
+              args[i] = "data";
+            }
+            onChangeBuilder.beginControlFlow(controlFlow.toString(), args)
                 .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
                 .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
                 .endControlFlow();
@@ -140,5 +178,4 @@ import static java.lang.Class.forName;
     }
     return true;
   }
-
 }

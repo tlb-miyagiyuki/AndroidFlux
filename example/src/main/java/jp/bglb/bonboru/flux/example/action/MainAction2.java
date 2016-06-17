@@ -11,6 +11,6 @@ import jp.bglb.bonboru.flux.example.dto.MainDataBuilder;
 public class MainAction2 implements Action<MainData, ActionTypes> {
 
   @Override public ActionData<MainData, ActionTypes> execute() {
-    return new ActionData<>(new MainDataBuilder().setMessage("text").build(), ActionTypes.UPDATE_TEXT);
+    return new ActionData<>(new MainDataBuilder().setMessage("text").setError(null).build(), ActionTypes.UPDATE_TEXT);
   }
 }
