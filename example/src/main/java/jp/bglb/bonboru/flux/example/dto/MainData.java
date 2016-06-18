@@ -3,6 +3,7 @@ package jp.bglb.bonboru.flux.example.dto;
 import java.util.List;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
 import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
+import jp.bglb.bonboru.flux.compiler.type.CheckType;
 
 /**
  * Created by tmasuda on 2016/04/15.
@@ -11,7 +12,7 @@ import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
 
   @ObservableField(hasDefaultValue = true) public String message;
 
-  @ObservableField(isNullable = true) public String error;
+  @ObservableField(checkType = CheckType.NULLABLE) public String error;
 
   @ObservableField public List<String> messages;
 

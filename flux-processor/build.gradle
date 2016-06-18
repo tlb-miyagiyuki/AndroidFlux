@@ -4,16 +4,36 @@ targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile project(':flux-framework')
-    compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.squareup:javapoet:1.7.0'
-    compile 'io.reactivex:rxjava:1.1.0'
+  compile project(':flux-framework')
+  compile 'com.google.auto.service:auto-service:1.0-rc2'
+  compile 'com.squareup:javapoet:1.7.0'
+  compile 'io.reactivex:rxjava:1.1.0'
+
+  testCompile 'junit:junit:4.12'
+  testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+  testCompile 'com.google.testing.compile:compile-testing:0.8'
+  testCompile 'com.google.truth:truth:0.28'
+}
+
+task sourcesJar(type: Jar) {
+  from sourceSets.main.allSource
+  classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+  from javadoc
+  classifier = 'javadoc'
 }
 
 sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java']
-        }
+  main {
+    java {
+      srcDirs = ['src/main/java']
     }
+  }
+  test {
+    java {
+      srcDirs = ['src/test/java']
+    }
+  }
 }
