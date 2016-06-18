@@ -1,5 +1,4 @@
 AndroidFlux
-
 ===
 
 [![Build Status](https://travis-ci.org/ttymsd/AndroidFlux.svg?branch=master)](https://travis-ci.org/ttymsd/AndroidFlux)
