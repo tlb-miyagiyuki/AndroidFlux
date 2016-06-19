@@ -1,4 +1,6 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -35,5 +37,30 @@ sourceSets {
     java {
       srcDirs = ['src/test/java']
     }
+  }
+}
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+  user = System.getenv('bintray_user') ?: properties.getProperty('bintray_user')
+  key = System.getenv('bintray_api_key') ?: properties.getProperty('bintray_api_key')
+  publications = ['maven']
+
+  pkg {
+    repo = 'maven'
+    name = "jp.bglb.bonboru:${project.name}"
+    version.name = project.version
   }
 }

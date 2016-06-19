@@ -1,19 +1,22 @@
 buildscript {
 
   ext.kotlin_version = '1.0.1-2'
-  ext.support_package_version = '23.3.0'
 
   repositories {
     jcenter()
   }
+
   dependencies {
     classpath 'com.android.tools.build:gradle:1.5.0'
     classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
   }
 }
 
 allprojects {
+  version '0.8.0'
+
   repositories {
     jcenter()
   }
