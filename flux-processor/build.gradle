@@ -44,18 +44,24 @@ publishing {
   publications {
     maven(MavenPublication) {
       from components.java
+      groupId 'jp.bglb.bonboru'
       artifact sourcesJar
       artifact javadocJar
     }
   }
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-  user = System.getenv('bintray_user') ?: properties.getProperty('bintray_user')
-  key = System.getenv('bintray_api_key') ?: properties.getProperty('bintray_api_key')
+  Properties properties = new Properties()
+  def property = new File('local.properties')
+  if (property.exists()) {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    user = properties.getProperty('bintray_user')
+    key = properties.getProperty('bintray_api_key')
+  }
+  user = System.getenv('bintray_user') ?: user
+  key = System.getenv('bintray_api_key') ?: key
   publications = ['maven']
 
   pkg {

@@ -12,11 +12,13 @@ public @interface ObservableField {
 
   /**
    * 値のnullを許可し、null値でも伝搬させるようにする
+   * @return {@link CheckType}
    */
   CheckType checkType() default CheckType.STRICT;
 
   /**
    * Storeの初期値を設定するかどうか
+   * @return true if the field has defaultValue, false doesn't
    */
   boolean hasDefaultValue() default false;
 }
