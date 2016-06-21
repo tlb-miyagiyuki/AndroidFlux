@@ -3,8 +3,29 @@ AndroidFlux
 
 [![License](https://img.shields.io/hexpm/l/plug.svg)](https://github.com/ttymsd/AndroidFlux/blob/master/LICENSE.txt)
 [![Build Status](https://travis-ci.org/ttymsd/AndroidFlux.svg?branch=master)](https://travis-ci.org/ttymsd/AndroidFlux)
+[![Download](https://api.bintray.com/packages/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/images/download.svg) ](https://bintray.com/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/_latestVersion)
 
 Flux Framework for Java
+
+Uage
+----
+
+Add dependency to `build.gradle`.
+
+```gradle
+repositories {
+    maven {
+        url  "http://dl.bintray.com/ttymsd/maven" 
+    }
+}
+dependencies {
+    compile 'jp.bglb.bonboru:flux-framework:${latestVersion}'
+    compile 'jp.bglb.bonboru:flux-processor:${latestVersion}'
+    apt 'jp.bglb.bonboru:flux-processor:${latestVersion}'
+}
+```
+
+Java Code see [example](https://github.com/ttymsd/AndroidFlux/tree/master/example "example")
 
 License
 ---
