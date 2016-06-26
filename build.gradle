@@ -22,6 +22,14 @@ allprojects {
   }
 }
 
+project.ext {
+  rxjava_version = '1.1.6'
+  rxandroid_version = '1.2.1'
+  rxkotlin_version = '0.55.0'
+  auto_service_version = '1.0-rc2'
+  javapoet_version = '1.7.0'
+}
+
 task clean(type: Delete) {
   delete rootProject.buildDir
 }
