@@ -7,8 +7,8 @@ AndroidFlux
 
 Flux Framework for Java
 
-Uage
-----
+Usage
+-----
 
 Add dependency to `build.gradle`.
 
