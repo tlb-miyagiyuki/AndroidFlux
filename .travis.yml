@@ -18,7 +18,7 @@ android:
     - sys-img-armeabi-v7a-android-23
 
 script:
-  ./gradlew :flux-framework:build :flux-processor:build test
+  ./gradlew :flux-framework:build :flux-processor:build :flux-framework-kotlin:build test
 
 notifications:
   slack:
