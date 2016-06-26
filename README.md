@@ -7,8 +7,8 @@ AndroidFlux
 
 Flux Framework for Java
 
-Uage
-----
+Usage
+-----
 
 Add dependency to `build.gradle`.
 
@@ -20,12 +20,14 @@ repositories {
 }
 dependencies {
     compile 'jp.bglb.bonboru:flux-framework:${latestVersion}'
+    compile 'jp.bglb.bonboru:flux-framework-kotlin:${latestVersion}'
     compile 'jp.bglb.bonboru:flux-processor:${latestVersion}'
     apt 'jp.bglb.bonboru:flux-processor:${latestVersion}'
 }
 ```
 
 Java Code see [example](https://github.com/ttymsd/AndroidFlux/tree/master/example "example")
+Kotlin Code see [kotlin#example](https://github.com/ttymsd/AndroidFlux/tree/master/kotlinexample "kotlinexample")
 
 License
 ---

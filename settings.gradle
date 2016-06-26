@@ -1,2 +1,2 @@
-include ':flux-framework', ':flux-processor', ':kotlinexample'
+include ':flux-framework', ':flux-processor', ':kotlinexample', ':flux-framework-kotlin'
 include ':example'

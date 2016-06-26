@@ -1,13 +1,16 @@
-apply plugin: 'java'
+apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceSets {
+  main.kotlin.srcDirs += 'src/main/kotlin'
+}
 
 dependencies {
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  compile project(':flux-framework')
   compile "io.reactivex:rxjava:${rxjava_version}"
+  compile "io.reactivex:rxkotlin:${rxkotlin_version}"
 }
 
 task sourcesJar(type: Jar) {
@@ -30,7 +33,6 @@ publishing {
     }
   }
 }
-
 
 bintray {
   Properties properties = new Properties()
