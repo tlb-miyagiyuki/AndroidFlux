@@ -1,6 +1,5 @@
 package jp.bglb.bonboru.flux.compiler;
 
-import jp.bglb.bonboru.flux.compiler.FluxProcessor;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourceSubjectFactory;
@@ -14,10 +13,13 @@ public class ProcessorTest {
   @Test public void test_generateStore() {
     Truth.assert_()
         .about(JavaSourceSubjectFactory.javaSource())
-        .that(JavaFileObjects.forResource("TestData.java"))
+        .that(JavaFileObjects.forResource("test/TestData.java"))
         .processedWith(new FluxProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(JavaFileObjects.forResource("TestDataStore.java"));
+        .generatesSources(
+            JavaFileObjects.forResource("TestDataStore.java"),
+            JavaFileObjects.forResource("TestDataBuilder.java")
+        );
   }
 }
