@@ -1,11 +1,24 @@
 AndroidFlux
 ===
 
+Flux Framework for Java
+
+Artifacts Status
+================
+
 [![License](https://img.shields.io/hexpm/l/plug.svg)](https://github.com/ttymsd/AndroidFlux/blob/master/LICENSE.txt)
 [![Build Status](https://travis-ci.org/ttymsd/AndroidFlux.svg?branch=master)](https://travis-ci.org/ttymsd/AndroidFlux)
-[![Download](https://api.bintray.com/packages/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/images/download.svg) ](https://bintray.com/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/_latestVersion)
+[![Coverage Status](https://coveralls.io/repos/github/ttymsd/AndroidFlux/badge.svg?branch=master)](https://coveralls.io/github/ttymsd/AndroidFlux?branch=master)
 
-Flux Framework for Java
+jp.bglb.bonboru:flux-framework
+[![Download](https://api.bintray.com/packages/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/images/download.svg) ](https://bintray.com/ttymsd/maven/jp.bglb.bonboru%3Aflux-framework/_latestVersion)
+
+jp.bglb.bonboru:flux-framework-kotlin
+[![Download](https://api.bintray.com/packages/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/images/download.svg) ](https://bintray.com/ttymsd/maven/jp.bglb.bonboru%3Aflux-framework-kotlin/_latestVersion)
+
+jp.bglb.bonboru:flux-processor
+[![Download](https://api.bintray.com/packages/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/images/download.svg) ](https://bintray.com/ttymsd/maven/jp.bglb.bonboru%3Aflux-processor/_latestVersion)
+    
 
 Usage
 -----
@@ -27,6 +40,7 @@ dependencies {
 ```
 
 Java Code see [example](https://github.com/ttymsd/AndroidFlux/tree/master/example "example")
+
 Kotlin Code see [kotlin#example](https://github.com/ttymsd/AndroidFlux/tree/master/kotlinexample "kotlinexample")
 
 License
