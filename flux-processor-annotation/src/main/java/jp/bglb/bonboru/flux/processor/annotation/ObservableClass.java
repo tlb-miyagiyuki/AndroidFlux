@@ -1,4 +1,4 @@
-package jp.bglb.bonboru.flux.compiler.annotation;
+package jp.bglb.bonboru.flux.processor.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

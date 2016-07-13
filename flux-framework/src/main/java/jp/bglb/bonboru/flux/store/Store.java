@@ -13,4 +13,6 @@ public abstract class Store<T> {
   public T getData() {
     return this.data;
   }
+
+  public abstract T copyCurrentState();
 }

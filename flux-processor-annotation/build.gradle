@@ -1,44 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'jacoco'
-apply plugin: 'com.github.kt3k.coveralls'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-  compile project(':flux-processor-annotation')
-  compile project(':flux-framework')
-  compile "com.google.auto.service:auto-service:${auto_service_version}"
-  compile "com.squareup:javapoet:${javapoet_version}"
-  compile "io.reactivex:rxjava:${rxjava_version}"
-
-  testCompile 'junit:junit:4.12'
-  testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
-  testCompile 'com.google.testing.compile:compile-testing:0.8'
-  testCompile 'com.google.truth:truth:0.28'
-}
-
-
-// covarage report
-jacoco {
-  toolVersion = "0.7.1.201405082137"
-  reportsDir = file("$buildDir/reports")
-}
-
-jacocoTestReport {
-  reports {
-    xml.enabled = true
-    html.enabled = true
-    xml.destination = "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-  }
-}
-
-check.dependsOn jacocoTestReport
-
-coveralls {
-  sourceDirs = files(sourceSets.main.allSource.srcDirs).files.absolutePath
+  compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 // upload jar

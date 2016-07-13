@@ -1,9 +1,9 @@
 package jp.bglb.bonboru.flux.example.dto;
 
 import java.util.List;
-import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
-import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
-import jp.bglb.bonboru.flux.compiler.type.CheckType;
+import jp.bglb.bonboru.flux.processor.annotation.ObservableClass;
+import jp.bglb.bonboru.flux.processor.annotation.ObservableField;
+import jp.bglb.bonboru.flux.processor.type.CheckType;
 
 /**
  * Created by tmasuda on 2016/04/15.
@@ -15,6 +15,8 @@ import jp.bglb.bonboru.flux.compiler.type.CheckType;
   @ObservableField(checkType = CheckType.NULLABLE) public String error;
 
   @ObservableField public List<String> messages;
+
+  @ObservableField public boolean progressBarVisibility;
 
   public String getMessage() {
     return message;
@@ -38,6 +40,14 @@ import jp.bglb.bonboru.flux.compiler.type.CheckType;
 
   public void setError(String error) {
     this.error = error;
+  }
+
+  public boolean isProgressBarVisibility() {
+    return progressBarVisibility;
+  }
+
+  public void setProgressBarVisibility(boolean progressBarVisibility) {
+    this.progressBarVisibility = progressBarVisibility;
   }
 }
 

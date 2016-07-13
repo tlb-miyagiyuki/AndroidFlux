@@ -1,12 +1,16 @@
 package jp.bglb.bonboru.flux;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import jp.bglb.bonboru.flux.action.Action;
 import jp.bglb.bonboru.flux.action.ActionData;
 import jp.bglb.bonboru.flux.action.ActionType;
+import jp.bglb.bonboru.flux.middleware.Middleware;
 import jp.bglb.bonboru.flux.reducer.Reducer;
 import jp.bglb.bonboru.flux.store.Store;
-import rx.Observable;
-import rx.Subscriber;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -15,29 +19,52 @@ import rx.schedulers.Schedulers;
  * Actionで取得したデータをstoreにdispatchする
  */
 public class Dispatcher<T, E extends ActionType> {
-  final Reducer<T, E> reducer;
-  final Store<T> store;
+  private final Reducer<T, E> reducer;
+  private final Store<T> store;
+  private final List<Middleware<T, E>> middlewares;
 
   public Dispatcher(final Reducer<T, E> reducer, final Store<T> store) {
     this.reducer = reducer;
     this.store = store;
+    this.middlewares = new ArrayList<>();
+  }
+
+  public Dispatcher(final Reducer<T, E> reducer, final Store<T> store,
+      Middleware<T, E>... middlewares) {
+    this.reducer = reducer;
+    this.store = store;
+    this.middlewares = Arrays.asList(middlewares);
   }
 
   public void dispatch(final Action<T, E> action) {
-    Observable<ActionData<T, E>> observable =
-        Observable.create(new Observable.OnSubscribe<ActionData<T, E>>() {
-          @Override public void call(Subscriber<? super ActionData<T, E>> subscriber) {
-            if (subscriber.isUnsubscribed()) {
-              return;
-            }
-            ActionData<T, E> actionData = action.execute();
-            subscriber.onNext(actionData);
-            subscriber.onCompleted();
+    Single<ActionData<T, E>> observable = Single.create(new Single.OnSubscribe<ActionData<T, E>>() {
+      @Override public void call(SingleSubscriber<? super ActionData<T, E>> singleSubscriber) {
+        if (singleSubscriber.isUnsubscribed()) {
+          return;
+        }
+        ActionData<T, E> actionData = null;
+        try {
+          actionData = action.execute();
+          if (singleSubscriber.isUnsubscribed()) {
+            return;
           }
-        });
+          singleSubscriber.onSuccess(actionData);
+        } catch (Throwable throwable) {
+          singleSubscriber.onError(throwable);
+        }
+      }
+    }).subscribeOn(Schedulers.io());
 
-    observable.subscribeOn(Schedulers.io()).subscribe(new Action1<ActionData<T, E>>() {
+    for (Middleware<T, E> middleware : middlewares) {
+      middleware.before(store);
+      observable = middleware.intercept(observable);
+    }
+
+    observable.subscribe(new Action1<ActionData<T, E>>() {
       @Override public void call(ActionData<T, E> actionData) {
+        for (Middleware<T, E> middleware : middlewares) {
+          actionData = middleware.after(store, actionData);
+        }
         T data = reducer.received(store.getData(), actionData);
         store.setData(data);
       }

@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     >
 
+  <ProgressBar
+      android:id="@+id/progress"
+      android:layout_width="match_parent"
+      android:layout_height="8dp"
+      android:indeterminate="true"
+      android:visibility="invisible"
+      style="?android:attr/progressBarStyleHorizontal"
+      />
+
   <TextView
       android:id="@+id/message"
       android:text="Hello"

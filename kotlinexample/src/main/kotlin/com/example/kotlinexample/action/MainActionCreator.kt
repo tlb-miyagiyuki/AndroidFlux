@@ -10,7 +10,9 @@ class MainActionCreator() {
 
   fun action(message: String): () -> MyActionData<MainData> {
     return fun(): MyActionData<MainData> {
-      return MyActionData<MainData>(MainDataBuilder().setMesage(message).build(),
+      Thread.sleep(5000)
+      return MyActionData<MainData>(
+          MainDataBuilder().setMesage(message).setProgressVisibility(false).build(),
           MyActionType.UPDATE_MESSAGE)
     }
   }
