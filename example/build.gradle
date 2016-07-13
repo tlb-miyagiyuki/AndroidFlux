@@ -42,8 +42,8 @@ android {
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   compile project(':flux-framework')
-  compile project(path: ':flux-processor')
-  apt project(path: ':flux-processor')
+  compile project(':flux-processor-annotation')
+  apt project(':flux-processor')
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:24.0.0'
   compile "io.reactivex:rxjava:${rxjava_version}"

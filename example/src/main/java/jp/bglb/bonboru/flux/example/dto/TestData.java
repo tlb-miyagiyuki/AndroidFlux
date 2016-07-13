@@ -1,4 +1,4 @@
-package jp.bglb.bonboru.flux.dto;
+package jp.bglb.bonboru.flux.example.dto;
 
 import java.util.List;
 import java.util.Map;

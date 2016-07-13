@@ -5,8 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import android.widget.Toast;
 import jp.bglb.bonboru.flux.Dispatcher;
 import jp.bglb.bonboru.flux.example.MyDispatcher;
@@ -17,6 +17,7 @@ import jp.bglb.bonboru.flux.example.action.MainAction2;
 import jp.bglb.bonboru.flux.example.action.MainAction3;
 import jp.bglb.bonboru.flux.example.dto.MainData;
 import jp.bglb.bonboru.flux.example.dto.MainDataStore;
+import jp.bglb.bonboru.flux.example.middleware.LoadMiddleware;
 import jp.bglb.bonboru.flux.example.reducer.MainReducer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
   Button button;
   Button button2;
   Button button3;
+  ProgressBar progressBar;
 
   CompositeSubscription subscription;
 
@@ -55,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
     button = (Button) findViewById(R.id.button);
     button2 = (Button) findViewById(R.id.button2);
     button3 = (Button) findViewById(R.id.button3);
-    dispatcher = new MyDispatcher<>(mainReducer, store);
+    progressBar = (ProgressBar) findViewById(R.id.progress);
+    dispatcher = new MyDispatcher<>(mainReducer, store, new LoadMiddleware());
     button.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         dispatcher.dispatch(action);
@@ -93,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
               message.setVisibility(View.GONE);
               Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
+          }
+        }), store.progressBarVisibility.subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Action1<Boolean>() {
+          @Override public void call(Boolean aBoolean) {
+            progressBar.setVisibility(aBoolean ? View.VISIBLE : View.INVISIBLE);
           }
         }));
   }

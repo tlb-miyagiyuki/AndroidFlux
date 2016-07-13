@@ -1,4 +1,4 @@
-package jp.bglb.bonboru.flux.compiler.type;
+package jp.bglb.bonboru.flux.processor.type;
 
 /**
  * Created by tmasuda on 2016/06/17.

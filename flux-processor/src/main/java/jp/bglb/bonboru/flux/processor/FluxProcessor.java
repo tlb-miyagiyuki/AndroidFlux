@@ -1,4 +1,4 @@
-package jp.bglb.bonboru.flux.compiler;
+package jp.bglb.bonboru.flux.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -27,9 +27,9 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import jp.bglb.bonboru.flux.compiler.annotation.ObservableClass;
-import jp.bglb.bonboru.flux.compiler.annotation.ObservableField;
-import jp.bglb.bonboru.flux.compiler.type.CheckType;
+import jp.bglb.bonboru.flux.processor.annotation.ObservableClass;
+import jp.bglb.bonboru.flux.processor.annotation.ObservableField;
+import jp.bglb.bonboru.flux.processor.type.CheckType;
 import jp.bglb.bonboru.flux.store.Store;
 import rx.subjects.BehaviorSubject;
 
@@ -37,8 +37,8 @@ import rx.subjects.BehaviorSubject;
  * AnnotationされているDataクラスからViewの制御を行うためのStateクラスを作る
  */
 @AutoService(Processor.class) @SupportedAnnotationTypes({
-    "jp.bglb.bonboru.flux.compiler.annotation.ObservableClass",
-    "jp.bglb.bonboru.flux.compiler.annotation.ObservableField"
+    "jp.bglb.bonboru.flux.processor.annotation.ObservableClass",
+    "jp.bglb.bonboru.flux.processor.annotation.ObservableField"
 }) @SupportedSourceVersion(SourceVersion.RELEASE_7) public class FluxProcessor
     extends AbstractProcessor {
 
@@ -115,6 +115,13 @@ import rx.subjects.BehaviorSubject;
     ClassName superClass = ClassName.get(Store.class);
     classBuilder.superclass(ParameterizedTypeName.get(superClass, dataName));
     constructorBuilder.addStatement("this.$N = new $T()", "data", dataName);
+
+    // 自身の持ってるデータの新インスタンスを作るメソッド
+    MethodSpec.Builder copyCurrentState = MethodSpec.methodBuilder("copyCurrentState")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .returns(dataName)
+        .addStatement("$T newObject = new $T()", dataName, dataName);
 
     // 自分の持ってるデータと渡されるデータの差分を検出して反映するメソッド
     MethodSpec.Builder onChangeBuilder = MethodSpec.methodBuilder("setData")
@@ -212,7 +219,7 @@ import rx.subjects.BehaviorSubject;
             default:
               args = new Object[2];
               controlFlow.append("if (")
-                  .append(String.format("this.$N.%s == $N.%s", getter, getter))
+                  .append(String.format("this.$N.%s != $N.%s", getter, getter))
                   .append(")");
           }
 
@@ -293,10 +300,14 @@ import rx.subjects.BehaviorSubject;
             .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
             .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
             .endControlFlow();
+        copyCurrentState
+            .addStatement("$N." + setter + "(this.$N." + getter + ")", "newObject", "data");
       } catch (MirroredTypeException t) {
       }
     }
-    classBuilder.addMethod(constructorBuilder.build()).addMethod(onChangeBuilder.build());
+    classBuilder.addMethod(constructorBuilder.build())
+        .addMethod(onChangeBuilder.build())
+        .addMethod(copyCurrentState.addStatement("return $N", "newObject").build());
     return classBuilder.build();
   }
 

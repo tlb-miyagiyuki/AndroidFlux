@@ -10,7 +10,8 @@ import jp.bglb.bonboru.flux.example.dto.MainDataBuilder;
  */
 public class MainAction implements Action<MainData, ActionTypes> {
 
-  @Override public ActionData<MainData, ActionTypes> execute() {
+  @Override public ActionData<MainData, ActionTypes> execute() throws Throwable {
+    Thread.sleep(5000);
     return new ActionData<>(new MainDataBuilder().setMessage("message").setError(null).build(),
         ActionTypes.UPDATE_MESSAGE);
   }

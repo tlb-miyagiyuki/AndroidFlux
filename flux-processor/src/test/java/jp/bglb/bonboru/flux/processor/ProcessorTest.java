@@ -1,4 +1,4 @@
-package jp.bglb.bonboru.flux.compiler;
+package jp.bglb.bonboru.flux.processor;
 
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;

@@ -102,7 +102,7 @@ public final class TestDataStore extends Store<TestData> {
       this.data.setI(data.getI());
       this.i.onNext(data.getI());
     }
-    if (this.data.getL() == data.getL()) {
+    if (this.data.getL() != data.getL()) {
       this.data.setL(data.getL());
       this.l.onNext(data.getL());
     }
@@ -110,11 +110,11 @@ public final class TestDataStore extends Store<TestData> {
       this.data.setF(data.getF());
       this.f.onNext(data.getF());
     }
-    if (this.data.getD() == data.getD()) {
+    if (this.data.getD() != data.getD()) {
       this.data.setD(data.getD());
       this.d.onNext(data.getD());
     }
-    if (this.data.isB() == data.isB()) {
+    if (this.data.isB() != data.isB()) {
       this.data.setB(data.isB());
       this.b.onNext(data.isB());
     }
@@ -122,11 +122,11 @@ public final class TestDataStore extends Store<TestData> {
       this.data.setS(data.getS());
       this.s.onNext(data.getS());
     }
-    if (this.data.getBb() == data.getBb()) {
+    if (this.data.getBb() != data.getBb()) {
       this.data.setBb(data.getBb());
       this.bb.onNext(data.getBb());
     }
-    if (this.data.getC() == data.getC()) {
+    if (this.data.getC() != data.getC()) {
       this.data.setC(data.getC());
       this.c.onNext(data.getC());
     }
@@ -142,5 +142,28 @@ public final class TestDataStore extends Store<TestData> {
       this.data.setFa(data.getFa());
       this.fa.onNext(data.getFa());
     }
+  }
+
+  @Override
+  public TestData copyCurrentState() {
+    TestData newObject = new TestData();
+    newObject.setNonNullName(this.data.getNonNullName());
+    newObject.setName(this.data.getName());
+    newObject.setPassName(this.data.getPassName());
+    newObject.setDefaultName(this.data.getDefaultName());
+    newObject.setMessages(this.data.getMessages());
+    newObject.setMap(this.data.getMap());
+    newObject.setI(this.data.getI());
+    newObject.setL(this.data.getL());
+    newObject.setF(this.data.getF());
+    newObject.setD(this.data.getD());
+    newObject.setB(this.data.isB());
+    newObject.setS(this.data.getS());
+    newObject.setBb(this.data.getBb());
+    newObject.setC(this.data.getC());
+    newObject.setIa(this.data.getIa());
+    newObject.setLa(this.data.getLa());
+    newObject.setFa(this.data.getFa());
+    return newObject;
   }
 }

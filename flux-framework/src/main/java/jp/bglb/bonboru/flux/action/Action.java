@@ -6,6 +6,5 @@ package jp.bglb.bonboru.flux.action;
  */
 public interface Action<R, E extends ActionType> {
 
-  ActionData<R, E> execute();
-
+  ActionData<R, E> execute() throws Throwable;
 }
