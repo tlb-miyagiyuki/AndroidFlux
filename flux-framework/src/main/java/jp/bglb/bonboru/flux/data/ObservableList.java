@@ -98,6 +98,9 @@ public class ObservableList<E> {
   }
 
   @Override public boolean equals(Object o) {
-    return getClass() == o.getClass() && operation == ObservableList.class.cast(o).operation;
+    boolean sameClass = getClass() == o.getClass();
+    boolean sameOperated = operation == ObservableList.class.cast(o).operation;
+    boolean sameSize = list.size() == ObservableList.class.cast(o).list.size();
+    return sameClass && sameOperated && sameSize;
   }
 }
