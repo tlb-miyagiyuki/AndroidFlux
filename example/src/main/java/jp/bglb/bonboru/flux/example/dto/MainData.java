@@ -18,20 +18,22 @@ import jp.bglb.bonboru.flux.processor.type.CheckType;
 
   @ObservableField public boolean progressBarVisibility;
 
+  @ObservableField private boolean isBoolean;
+
+  @ObservableField private String isString;
+
+  @ObservableField private boolean is_boolean;
+
+  @ObservableField private String is_string;
+
+  @ObservableField private String isaString;
+
   public String getMessage() {
     return message;
   }
 
   public void setMessage(String message) {
     this.message = message;
-  }
-
-  public List<String> getMessages() {
-    return messages;
-  }
-
-  public void setMessages(List<String> messages) {
-    this.messages = messages;
   }
 
   public String getError() {
@@ -42,12 +44,60 @@ import jp.bglb.bonboru.flux.processor.type.CheckType;
     this.error = error;
   }
 
+  public List<String> getMessages() {
+    return messages;
+  }
+
+  public void setMessages(List<String> messages) {
+    this.messages = messages;
+  }
+
   public boolean isProgressBarVisibility() {
     return progressBarVisibility;
   }
 
   public void setProgressBarVisibility(boolean progressBarVisibility) {
     this.progressBarVisibility = progressBarVisibility;
+  }
+
+  public boolean isBoolean() {
+    return isBoolean;
+  }
+
+  public void setBoolean(boolean aBoolean) {
+    isBoolean = aBoolean;
+  }
+
+  public String getIsString() {
+    return isString;
+  }
+
+  public void setIsString(String isString) {
+    this.isString = isString;
+  }
+
+  public boolean is_boolean() {
+    return is_boolean;
+  }
+
+  public void setIs_boolean(boolean is_boolean) {
+    this.is_boolean = is_boolean;
+  }
+
+  public String getIs_string() {
+    return is_string;
+  }
+
+  public void setIs_string(String is_string) {
+    this.is_string = is_string;
+  }
+
+  public String getIsaString() {
+    return isaString;
+  }
+
+  public void setIsaString(String isaString) {
+    this.isaString = isaString;
   }
 }
 

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -43,6 +45,10 @@ import rx.subjects.BehaviorSubject;
     extends AbstractProcessor {
 
   private Filer filer;
+
+  private Pattern getterBooleanPattern = Pattern.compile("^is[A-Z_]+");
+
+  private Pattern setterBooleanKotlinPattern = Pattern.compile("^is[A-Z]+");
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -89,11 +95,21 @@ import rx.subjects.BehaviorSubject;
         continue;
       }
       final String field = member.getSimpleName().toString();
-      final String setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+
+      boolean prefixIsProperty = false;
+      Matcher setterBooleanMatcher = setterBooleanKotlinPattern.matcher(field);
+      if (setterBooleanMatcher.find()) {
+        prefixIsProperty = member.asType().getKind() == TypeKind.BOOLEAN;
+      }
+      String setter = "";
+      if (prefixIsProperty) {
+        setter = "set" + field.substring(2, 3).toUpperCase() + field.substring(3);
+      } else {
+        setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+      }
 
       MethodSpec.Builder setterBuilder =
-          MethodSpec.methodBuilder("set" + field.substring(0, 1).toUpperCase() + field.substring(1))
-              .addModifiers(Modifier.PUBLIC);
+          MethodSpec.methodBuilder(setter).addModifiers(Modifier.PUBLIC);
       setterBuilder.addParameter(ParameterizedTypeName.get(member.asType()), field);
       setterBuilder.addStatement("this.$N." + setter + "($N)", "data", field)
           .addStatement("return this")
@@ -104,6 +120,7 @@ import rx.subjects.BehaviorSubject;
   }
 
   private TypeSpec generateStore(Element element) {
+    System.out.println(element);
     final String stateClassName = element.getSimpleName().toString() + "Store";
     TypeSpec.Builder classBuilder =
         TypeSpec.classBuilder(stateClassName).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
@@ -190,10 +207,31 @@ import rx.subjects.BehaviorSubject;
 
       try {
         final String field = member.getSimpleName().toString();
-        final String setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
-        final String getter =
-            (typeMirror.getKind() == TypeKind.BOOLEAN ? "is" : "get") + field.substring(0, 1)
-                .toUpperCase() + field.substring(1) + "()";
+        String getterPrefix = (typeMirror.getKind() == TypeKind.BOOLEAN ? "is" : "get");
+        Matcher booleanMatcher = getterBooleanPattern.matcher(field);
+        if (booleanMatcher.find()) {
+          getterPrefix = (typeMirror.getKind() == TypeKind.BOOLEAN ? "" : "get");
+        }
+
+        boolean prefixIsProperty = false;
+        Matcher setterBooleanMatcher = setterBooleanKotlinPattern.matcher(field);
+        if (setterBooleanMatcher.find()) {
+          prefixIsProperty = typeMirror.getKind() == TypeKind.BOOLEAN;
+        }
+
+        String setter = "";
+        if (prefixIsProperty) {
+          setter = "set" + field.substring(2, 3).toUpperCase() + field.substring(3);
+        } else {
+          setter = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+        }
+        String getter = "";
+        if ("".equals(getterPrefix)) {
+          getter = field + "()";
+        } else {
+          getter = getterPrefix + field.substring(0, 1).toUpperCase() + field.substring(1) + "()";
+        }
+
         FieldSpec fieldSpec = FieldSpec.builder(behaviorOfType, field)
             .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
             .build();
@@ -300,9 +338,10 @@ import rx.subjects.BehaviorSubject;
             .addStatement("this.$N." + setter + "($N." + getter + ")", "data", "data")
             .addStatement("this.$N.onNext($N." + getter + ")", field, "data")
             .endControlFlow();
-        copyCurrentState
-            .addStatement("$N." + setter + "(this.$N." + getter + ")", "newObject", "data");
+        copyCurrentState.addStatement("$N." + setter + "(this.$N." + getter + ")", "newObject",
+            "data");
       } catch (MirroredTypeException t) {
+        System.out.println(t);
       }
     }
     classBuilder.addMethod(constructorBuilder.build())

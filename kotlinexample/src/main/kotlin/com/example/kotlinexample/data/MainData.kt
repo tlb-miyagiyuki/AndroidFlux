@@ -9,6 +9,9 @@ import jp.bglb.bonboru.flux.processor.annotation.ObservableField
 @ObservableClass
 data class MainData(@ObservableField var mesage: String = "",
     @ObservableField var progressVisibility: Boolean = false
+//    @ObservableField var is_test: String = "",
+//    @ObservableField var isTest: String = "",
+//    @ObservableField var isaTest: String = ""
 ) {
 
   fun isProgressVisibility(): Boolean {
