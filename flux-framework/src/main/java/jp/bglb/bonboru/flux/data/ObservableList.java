@@ -25,7 +25,8 @@ public class ObservableList<E> {
   }
 
   public ObservableList(List<E> list) {
-    this.list = list;
+    this.list = new ArrayList<>();
+    this.list.addAll(list);
   }
 
   public void swap(int p1, int p2) {
@@ -41,6 +42,9 @@ public class ObservableList<E> {
   }
 
   public void replace(int p, E o) {
+    operation = Operation.UPDATE;
+    fromOperatedPosition = p;
+    toOperatedPosition = p;
     E r = list.get(p);
     list.remove(r);
     list.add(p, o);
