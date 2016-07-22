@@ -23,7 +23,7 @@ open class Dispatcher<T, E : ActionType>(val reducer: Reducer<T, E>, val store: 
         return@create
       }
       it.onSuccess(actionData)
-    }.subscribeOn(Schedulers.io())
+    }
 
     middleWares.forEach {
       it.before(store)
