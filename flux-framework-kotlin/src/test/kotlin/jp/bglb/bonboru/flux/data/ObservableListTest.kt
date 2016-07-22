@@ -77,10 +77,47 @@ class ObservableListTest() {
     for (i in 0..3) {
       assertEquals("item:$i", operateList.list[i])
     }
-
     for (i in 5..9) {
       assertEquals("item:$i", operateList.list[i])
     }
+  }
+
+  @Test fun testReplaceRepeat() {
+    val operateList = ObservableList<String>(observableList.list)
+    assertEquals(10, operateList.list.size)
+
+    operateList.replace(4, "itemReplaced")
+    assertEquals(10, operateList.list.size)
+    assertEquals(Operation.UPDATE, operateList.operation)
+    assertEquals(false, operateList.equals(observableList))
+    assertEquals("itemReplaced", operateList.list[4])
+    assertEquals(4, operateList.fromOperatedPosition)
+    assertEquals(4, operateList.toOperatedPosition)
+    for (i in 0..3) {
+      assertEquals("item:$i", operateList.list[i])
+    }
+    for (i in 5..9) {
+      assertEquals("item:$i", operateList.list[i])
+    }
+
+    val operateList2 = ObservableList<String>(operateList.list)
+    assertEquals(10, operateList2.list.size)
+
+    operateList2.replace(8, "itemReplaced")
+    assertEquals(10, operateList2.list.size)
+    assertEquals(Operation.UPDATE, operateList2.operation)
+    assertEquals(false, operateList2.equals(operateList))
+    assertEquals("itemReplaced", operateList2.list[4])
+    assertEquals("itemReplaced", operateList2.list[8])
+    assertEquals(8, operateList2.fromOperatedPosition)
+    assertEquals(8, operateList2.toOperatedPosition)
+    for (i in 0..3) {
+      assertEquals("item:$i", operateList.list[i])
+    }
+    for (i in 5..7) {
+      assertEquals("item:$i", operateList.list[i])
+    }
+    assertEquals("item:9", operateList.list[9])
   }
 
   @Test fun testAdd() {
