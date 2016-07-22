@@ -20,6 +20,8 @@ public class ObservableList<E> {
   // 変更がある終了位置
   private long toOperatedPosition = 0;
 
+  private String updateObject = "";
+
   public ObservableList() {
     this.list = new ArrayList<>();
   }
@@ -43,6 +45,7 @@ public class ObservableList<E> {
 
   public void replace(int p, E o) {
     operation = Operation.UPDATE;
+    updateObject = o.toString() + ":" + p;
     fromOperatedPosition = p;
     toOperatedPosition = p;
     E r = list.get(p);
@@ -105,6 +108,7 @@ public class ObservableList<E> {
     boolean sameClass = getClass() == o.getClass();
     boolean sameOperated = operation == ObservableList.class.cast(o).operation;
     boolean sameSize = list.size() == ObservableList.class.cast(o).list.size();
-    return sameClass && sameOperated && sameSize;
+    boolean sameValue = updateObject.equals(ObservableList.class.cast(o).updateObject);
+    return sameClass && sameOperated && sameSize && sameValue;
   }
 }
