@@ -1,6 +1,6 @@
 buildscript {
 
-  ext.kotlin_version = '1.0.1-2'
+  ext.kotlin_version = '1.0.3'
 
   repositories {
     jcenter()
@@ -16,7 +16,7 @@ buildscript {
 }
 
 allprojects {
-  version '0.9.3'
+  version '0.9.4-alpha'
 
   repositories {
     jcenter()
@@ -24,9 +24,9 @@ allprojects {
 }
 
 project.ext {
-  rxjava_version = '1.1.6'
+  rxjava_version = '1.1.8'
   rxandroid_version = '1.2.1'
-  rxkotlin_version = '0.55.0'
+  rxkotlin_version = '0.60.0'
   auto_service_version = '1.0-rc2'
   javapoet_version = '1.7.0'
 }

@@ -53,7 +53,7 @@ public class Dispatcher<T, E extends ActionType> {
           singleSubscriber.onError(throwable);
         }
       }
-    }).subscribeOn(Schedulers.io());
+    });
 
     for (Middleware<T, E> middleware : middlewares) {
       middleware.before(store);
