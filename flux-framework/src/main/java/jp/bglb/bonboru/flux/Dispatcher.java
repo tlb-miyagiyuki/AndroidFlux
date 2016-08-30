@@ -65,12 +65,12 @@ public class Dispatcher<T, E extends ActionType> {
         for (Middleware<T, E> middleware : middlewares) {
           actionData = middleware.after(store, actionData);
         }
-        T data = reducer.received(store.getData(), actionData);
+        T data = reducer.received(store.copyCurrentState(), actionData);
         store.setData(data);
       }
     }, new Action1<Throwable>() {
       @Override public void call(Throwable throwable) {
-        T data = reducer.onError(store.getData(), throwable);
+        T data = reducer.onError(store.copyCurrentState(), throwable);
         store.setData(data);
       }
     });
