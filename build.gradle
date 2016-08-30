@@ -7,7 +7,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.5.0'
+    classpath 'com.android.tools.build:gradle:2.2.0-alpha7'
     classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
@@ -16,7 +16,7 @@ buildscript {
 }
 
 allprojects {
-  version '0.9.4-alpha'
+  version '0.9.4-beta'
 
   repositories {
     jcenter()
@@ -24,7 +24,7 @@ allprojects {
 }
 
 project.ext {
-  rxjava_version = '1.1.8'
+  rxjava_version = '1.1.9'
   rxandroid_version = '1.2.1'
   rxkotlin_version = '0.60.0'
   auto_service_version = '1.0-rc2'
