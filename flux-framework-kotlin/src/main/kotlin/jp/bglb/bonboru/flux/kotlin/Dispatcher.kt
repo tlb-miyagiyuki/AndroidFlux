@@ -35,9 +35,9 @@ open class Dispatcher<T, E : ActionType>(val reducer: Reducer<T, E>, val store: 
       middleWares.forEach {
         data = it.after(store, data)
       }
-      store.data = reducer.received(store.data, data)
+      store.data = reducer.received(store.copyCurrentState(), data)
     }, {
-      store.data = reducer.onError(store.data, it)
+      store.data = reducer.onError(store.copyCurrentState(), it)
     })
   }
 }
