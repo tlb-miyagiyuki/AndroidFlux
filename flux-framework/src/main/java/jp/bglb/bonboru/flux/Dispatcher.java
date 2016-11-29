@@ -9,10 +9,9 @@ import jp.bglb.bonboru.flux.action.ActionType;
 import jp.bglb.bonboru.flux.middleware.Middleware;
 import jp.bglb.bonboru.flux.reducer.Reducer;
 import jp.bglb.bonboru.flux.store.Store;
-import rx.Single;
-import rx.SingleSubscriber;
+import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by tmasuda on 2016/04/14.
@@ -36,24 +35,22 @@ public class Dispatcher<T, E extends ActionType> {
     this.middlewares = Arrays.asList(middlewares);
   }
 
-  public void dispatch(final Action<T, E> action) {
-    Single<ActionData<T, E>> observable = Single.create(new Single.OnSubscribe<ActionData<T, E>>() {
-      @Override public void call(SingleSubscriber<? super ActionData<T, E>> singleSubscriber) {
-        if (singleSubscriber.isUnsubscribed()) {
-          return;
-        }
-        ActionData<T, E> actionData = null;
-        try {
-          actionData = action.execute();
-          if (singleSubscriber.isUnsubscribed()) {
-            return;
+  public void dispatch(final Action<T, E>... actions) {
+    Observable<ActionData<T, E>> observable =
+        Observable.create(new Observable.OnSubscribe<ActionData<T, E>>() {
+          @Override public void call(Subscriber<? super ActionData<T, E>> subscriber) {
+            if (subscriber.isUnsubscribed()) {
+              return;
+            }
+            try {
+              for (Action<T, E> action : actions) {
+                subscriber.onNext(action.execute());
+              }
+            } catch (Throwable throwable) {
+              subscriber.onError(throwable);
+            }
           }
-          singleSubscriber.onSuccess(actionData);
-        } catch (Throwable throwable) {
-          singleSubscriber.onError(throwable);
-        }
-      }
-    });
+        });
 
     for (Middleware<T, E> middleware : middlewares) {
       middleware.before(store);

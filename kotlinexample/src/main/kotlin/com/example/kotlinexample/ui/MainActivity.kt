@@ -54,12 +54,12 @@ class MainActivity() : AppCompatActivity() {
     progressBar = findViewById(R.id.progress) as ProgressBar
 
     button.setOnClickListener { dispatcher.dispatch(actionCreator.action("hello")) }
-    button2.setOnClickListener { dispatcher.dispatch(actionCreator.action("hello, Flux")) }
+    button2.setOnClickListener { dispatcher.dispatch(actionCreator.action("is cache"), actionCreator.action("hello, Flux")) }
     button3.setOnClickListener { dispatcher.dispatch(actionCreator.action("hello, Flux, Kotlin")) }
 
     reducer = MainReducer()
     store = MainDataStore()
-    dispatcher = Dispatcher(reducer, store, LoadMiddleware(), LoadMiddleware())
+    dispatcher = Dispatcher(reducer, store, LoadMiddleware())
   }
 
   override fun onResume() {
