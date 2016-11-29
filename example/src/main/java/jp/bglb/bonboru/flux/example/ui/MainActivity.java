@@ -15,6 +15,7 @@ import jp.bglb.bonboru.flux.example.action.ActionTypes;
 import jp.bglb.bonboru.flux.example.action.MainAction;
 import jp.bglb.bonboru.flux.example.action.MainAction2;
 import jp.bglb.bonboru.flux.example.action.MainAction3;
+import jp.bglb.bonboru.flux.example.action.MainAction4;
 import jp.bglb.bonboru.flux.example.dto.MainData;
 import jp.bglb.bonboru.flux.example.dto.MainDataStore;
 import jp.bglb.bonboru.flux.example.middleware.LoadMiddleware;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
   MainAction3 action3 = new MainAction3();
 
+  MainAction4 action4 = new MainAction4();
+
   Dispatcher<MainData, ActionTypes> dispatcher;
 
   TextView message;
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     dispatcher = new MyDispatcher<>(mainReducer, store, new LoadMiddleware());
     button.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        dispatcher.dispatch(action);
+        dispatcher.dispatch(action4, action);
       }
     });
     button2.setOnClickListener(new View.OnClickListener() {
