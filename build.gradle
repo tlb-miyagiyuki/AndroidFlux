@@ -16,7 +16,7 @@ buildscript {
 }
 
 allprojects {
-  version '0.9.5-alpha'
+  version '0.9.5'
 
   repositories {
     jcenter()
